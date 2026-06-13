@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>נסח לי באנגלית</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;900&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1b2733;
+    --paper:#f7f5f0;
+    --card:#ffffff;
+    --line:#e3ded4;
+    --muted:#6b7480;
+    --formal:#1f4e79;
+    --simple:#2e7d5b;
+    --casual:#b4561e;
+    --accent:#1f4e79;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:'Heebo',sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:40px;
+  }
+  .wrap{max-width:680px;margin:0 auto;padding:0 16px}
+
+  header{padding:28px 0 18px;text-align:center}
+  header h1{font-weight:900;font-size:1.7rem;letter-spacing:-0.5px}
+  header h1 .en{font-family:'Source Serif 4',serif;font-weight:600;color:var(--accent)}
+  header p{color:var(--muted);font-size:.9rem;margin-top:4px}
+
+  .modes{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+  .mode{
+    background:var(--card);border:1.5px solid var(--line);border-radius:var(--radius);
+    padding:12px 8px;text-align:center;cursor:pointer;font-family:inherit;
+    transition:border-color .15s, box-shadow .15s;
+  }
+  .mode .ic{font-size:1.3rem;display:block;margin-bottom:4px}
+  .mode .t{font-weight:700;font-size:.85rem;display:block}
+  .mode .s{font-size:.7rem;color:var(--muted);display:block;margin-top:2px}
+  .mode[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 2px rgba(31,78,121,.15);background:#eef3f8}
+  .mode:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  .panel{background:var(--card);border:1.5px solid var(--line);border-radius:var(--radius);padding:16px}
+  label{font-weight:700;font-size:.85rem;display:block;margin-bottom:6px}
+  textarea{
+    width:100%;min-height:130px;resize:vertical;
+    font-family:inherit;font-size:1rem;line-height:1.5;
+    border:1.5px solid var(--line);border-radius:10px;padding:12px;
+    background:#fbfaf7;color:var(--ink);
+  }
+  textarea:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:transparent}
+  textarea[dir="auto"]{unicode-bidi:plaintext}
+  .intent{margin-top:12px;display:none}
+  .intent.show{display:block}
+  .intent textarea{min-height:64px}
+  .hint{font-size:.75rem;color:var(--muted);margin-top:4px}
+
+  .go{
+    margin-top:14px;width:100%;
+    background:var(--accent);color:#fff;border:none;border-radius:12px;
+    font-family:inherit;font-weight:700;font-size:1.05rem;
+    padding:14px;cursor:pointer;transition:opacity .15s;
+  }
+  .go:disabled{opacity:.45;cursor:default}
+  .go:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+
+  .status{text-align:center;color:var(--muted);font-size:.9rem;padding:18px 0;display:none}
+  .status.show{display:block}
+  .dots::after{content:'';animation:dots 1.2s steps(4,end) infinite}
+  @keyframes dots{0%{content:''}25%{content:'.'}50%{content:'..'}75%{content:'...'}}
+  @media (prefers-reduced-motion:reduce){.dots::after{animation:none;content:'...'}}
+
+  .error{
+    display:none;margin-top:14px;background:#fdf0ee;border:1.5px solid #e6b8b0;
+    border-radius:10px;padding:12px;font-size:.9rem;color:#8a3324;
+  }
+  .error.show{display:block}
+
+  #results{margin-top:18px;display:flex;flex-direction:column;gap:14px}
+  .card{
+    background:var(--card);border:1.5px solid var(--line);border-radius:var(--radius);
+    overflow:hidden;border-inline-start:5px solid var(--vc,var(--accent));
+  }
+  .card-head{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:10px 14px;border-bottom:1px solid var(--line);background:#fbfaf7;
+  }
+  .card-head .name{font-weight:700;font-size:.9rem;color:var(--vc,var(--ink))}
+  .copy{
+    font-family:inherit;font-size:.8rem;font-weight:700;
+    border:1.5px solid var(--line);background:#fff;border-radius:8px;
+    padding:6px 14px;cursor:pointer;color:var(--ink);
+    transition:background .15s,color .15s,border-color .15s;
+  }
+  .copy.done{background:var(--vc,var(--accent));color:#fff;border-color:transparent}
+  .copy:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+  .en-text{
+    direction:ltr;text-align:left;
+    font-family:'Source Serif 4',serif;font-size:1.02rem;line-height:1.6;
+    padding:14px;white-space:pre-wrap;
+  }
+  .he-text{
+    border-top:1px dashed var(--line);
+    padding:11px 14px;font-size:.88rem;line-height:1.55;color:var(--muted);
+    white-space:pre-wrap;background:#fbfaf7;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>נסח לי <span class="en">in English</span></h1>
+    <p>תשובות למיילים · שיפור ניסוח · תרגום מעברית</p>
+  </header>
+
+  <div class="modes" role="group" aria-label="בחירת מצב">
+    <button class="mode" data-mode="email" aria-pressed="true">
+      <span class="ic">✉️</span><span class="t">תשובה למייל</span><span class="s">קיבלתי מייל, צריך לענות</span>
+    </button>
+    <button class="mode" data-mode="improve" aria-pressed="false">
+      <span class="ic">✨</span><span class="t">שיפור ניסוח</span><span class="s">טקסט באנגלית לליטוש</span>
+    </button>
+    <button class="mode" data-mode="translate" aria-pressed="false">
+      <span class="ic">🔁</span><span class="t">עברית ⇐ אנגלית</span><span class="s">כתבתי בעברית</span>
+    </button>
+  </div>
+
+  <div class="panel">
+    <label id="inputLabel" for="mainInput">הדבק כאן את המייל שקיבלת</label>
+    <textarea id="mainInput" dir="auto" placeholder=""></textarea>
+
+    <div class="intent" id="intentWrap">
+      <label for="intentInput">מה אתה רוצה להגיד בתשובה? (אופציונלי, בעברית)</label>
+      <textarea id="intentInput" dir="auto" placeholder="למשל: להסכים לפגישה אבל לבקש לדחות בשבוע"></textarea>
+    </div>
+
+    <button class="go" id="goBtn">נסח לי ✏️</button>
+    <div class="error" id="errBox"></div>
+  </div>
+
+  <div class="status" id="statusBox"><span class="dots">מנסח שלוש גרסאות</span></div>
+
+  <div id="results"></div>
+</div>
+
+<script>
+// ====================================================================
+// הגדרה: הדבק כאן את כתובת ה-Worker שלך מ-Cloudflare
+// למשל: "https://english-writer.your-name.workers.dev"
+const PROXY_URL = "https://YOUR-WORKER-URL.workers.dev";
+// ====================================================================
+
+const MODES = {
+  email: {
+    label: 'הדבק כאן את המייל שקיבלת',
+    ph: 'Hi Dolev, following up on our discussion...',
+    intent: true
+  },
+  improve: {
+    label: 'הדבק כאן את הטקסט באנגלית לשיפור',
+    ph: 'We want check if you can to send the parts...',
+    intent: false
+  },
+  translate: {
+    label: 'כתוב כאן את הטקסט בעברית',
+    ph: 'רציתי לבדוק איתך לגבי המשלוח של החלקים...',
+    intent: false
+  }
+};
+let mode = 'email';
+
+const $ = id => document.getElementById(id);
+const modeBtns = document.querySelectorAll('.mode');
+
+modeBtns.forEach(b => b.addEventListener('click', () => {
+  mode = b.dataset.mode;
+  modeBtns.forEach(x => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
+  const m = MODES[mode];
+  $('inputLabel').textContent = m.label;
+  $('mainInput').placeholder = m.ph;
+  $('intentWrap').classList.toggle('show', m.intent);
+}));
+$('mainInput').placeholder = MODES.email.ph;
+$('intentWrap').classList.add('show');
+
+const VARIANTS = [
+  {key:'formal',  name:'ניסוח רשמי',        color:'var(--formal)'},
+  {key:'simple',  name:'ניסוח פשוט וברור',  color:'var(--simple)'},
+  {key:'casual',  name:'ניסוח חברי יומיומי', color:'var(--casual)'}
+];
+
+function buildPrompt(text, intent){
+  const task = {
+    email: `Below is an email I received. Write a reply email in English.${intent ? `\nWhat I want to convey in my reply (written in Hebrew): """${intent}"""` : ''}\nThe email I received:\n"""${text}"""`,
+    improve: `Below is an English text I wrote. Improve its phrasing, grammar and clarity while keeping my meaning:\n"""${text}"""`,
+    translate: `Below is a Hebrew text. Write it in natural English (not a literal translation):\n"""${text}"""`
+  }[mode];
+
+  return `${task}
+
+Produce THREE versions of the result:
+1. "formal" – professional business English.
+2. "simple" – plain, clear, short sentences.
+3. "casual" – friendly everyday tone.
+
+For each version also provide a Hebrew translation so I can verify the meaning.
+
+Respond ONLY with valid JSON, no markdown fences, no preamble, exactly this shape:
+{"formal":{"en":"...","he":"..."},"simple":{"en":"...","he":"..."},"casual":{"en":"...","he":"..."}}`;
+}
+
+async function generate(){
+  const text = $('mainInput').value.trim();
+  if(!text) return;
+  const intent = $('intentInput').value.trim();
+
+  $('goBtn').disabled = true;
+  $('errBox').classList.remove('show');
+  $('results').innerHTML = '';
+  $('statusBox').classList.add('show');
+
+  try{
+    const res = await fetch(PROXY_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-6',
+        max_tokens:1000,
+        messages:[{role:'user',content:buildPrompt(text,intent)}]
+      })
+    });
+    const data = await res.json();
+    if(data.error) throw new Error(data.error.message || 'API error');
+    const raw = (data.content||[]).map(c=>c.text||'').join('\n');
+    const clean = raw.replace(/```json|```/g,'').trim();
+    const first = clean.indexOf('{'), last = clean.lastIndexOf('}');
+    const parsed = JSON.parse(clean.slice(first,last+1));
+    render(parsed);
+  }catch(e){
+    $('errBox').textContent = 'משהו השתבש: ' + e.message + ' — נסה שוב.';
+    $('errBox').classList.add('show');
+  }finally{
+    $('goBtn').disabled = false;
+    $('statusBox').classList.remove('show');
+  }
+}
+
+function render(d){
+  const box = $('results');
+  box.innerHTML = '';
+  VARIANTS.forEach(v=>{
+    if(!d[v.key]) return;
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.style.setProperty('--vc', v.color);
+
+    const head = document.createElement('div');
+    head.className = 'card-head';
+    const name = document.createElement('span');
+    name.className = 'name';
+    name.textContent = v.name;
+    const btn = document.createElement('button');
+    btn.className = 'copy';
+    btn.textContent = 'העתק';
+    btn.addEventListener('click', async ()=>{
+      try{ await navigator.clipboard.writeText(d[v.key].en); }
+      catch(_){
+        const ta=document.createElement('textarea');
+        ta.value=d[v.key].en;document.body.appendChild(ta);
+        ta.select();document.execCommand('copy');ta.remove();
+      }
+      btn.textContent='הועתק ✓';btn.classList.add('done');
+      setTimeout(()=>{btn.textContent='העתק';btn.classList.remove('done');},1800);
+    });
+    head.append(name,btn);
+
+    const en = document.createElement('div');
+    en.className = 'en-text';
+    en.textContent = d[v.key].en;
+
+    const he = document.createElement('div');
+    he.className = 'he-text';
+    he.textContent = d[v.key].he;
+
+    card.append(head,en,he);
+    box.appendChild(card);
+  });
+  box.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+$('goBtn').addEventListener('click', generate);
+</script>
+</body>
+</html>
