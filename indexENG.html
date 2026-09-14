@@ -35,7 +35,7 @@
   header h1 .en{font-family:'Source Serif 4',serif;font-weight:600;color:var(--accent)}
   header p{color:var(--muted);font-size:.9rem;margin-top:4px}
 
-  .modes{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+  .modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-bottom:14px}
   .mode{
     background:var(--card);border:1.5px solid var(--line);border-radius:var(--radius);
     padding:12px 8px;text-align:center;cursor:pointer;font-family:inherit;
@@ -111,6 +111,43 @@
     padding:11px 14px;font-size:.88rem;line-height:1.55;color:var(--muted);
     white-space:pre-wrap;background:#fbfaf7;
   }
+
+  .en-src{
+    direction:ltr;text-align:left;user-select:text;-webkit-user-select:text;
+    font-family:'Source Serif 4',serif;font-size:1.02rem;line-height:1.75;
+    padding:14px;white-space:pre-wrap;
+  }
+  .en-src mark.unclear{
+    background:#ffe58a;border-radius:3px;padding:0 1px;cursor:pointer;
+  }
+  .en-src mark.unclear:hover{background:#ffcf4d}
+  .mark-tip{
+    position:fixed;z-index:60;background:var(--ink);color:#fff;
+    font-family:'Heebo',sans-serif;font-size:.75rem;font-weight:700;
+    padding:7px 12px;border-radius:20px;cursor:pointer;
+    box-shadow:0 4px 14px rgba(0,0,0,.25);white-space:nowrap;
+  }
+  .understand-hint{font-size:.78rem;color:var(--muted);padding:0 14px 12px}
+
+  .log-panel{margin-top:18px;display:none}
+  .log-panel.show{display:block}
+  .log-head{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+  .log-head label{margin-bottom:0}
+  .log-actions{display:flex;gap:6px}
+  .log-empty{color:var(--muted);font-size:.85rem;padding:10px 2px}
+  #logList{margin-top:10px;display:flex;flex-direction:column;gap:8px}
+  .log-item{
+    display:flex;align-items:flex-start;justify-content:space-between;gap:10px;
+    border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:#fbfaf7;
+  }
+  .log-item .li-main{min-width:0}
+  .log-item .li-phrase{font-family:'Source Serif 4',serif;font-weight:600;direction:ltr;text-align:left;display:block}
+  .log-item .li-ctx{font-size:.75rem;color:var(--muted);direction:ltr;text-align:left;margin-top:2px}
+  .log-item .li-del{
+    flex:none;border:none;background:transparent;color:var(--muted);cursor:pointer;font-size:.9rem;
+    padding:2px 4px;line-height:1;
+  }
+  .log-item .li-del:hover{color:#8a3324}
 </style>
 </head>
 <body>
@@ -130,6 +167,9 @@
     <button class="mode" data-mode="translate" aria-pressed="false">
       <span class="ic">🔁</span><span class="t">עברית ⇐ אנגלית</span><span class="s">כתבתי בעברית</span>
     </button>
+    <button class="mode" data-mode="understand" aria-pressed="false">
+      <span class="ic">📖</span><span class="t">אנגלית ⇒ עברית</span><span class="s">להבין טקסט + לסמן קושי</span>
+    </button>
   </div>
 
   <div class="panel">
@@ -148,6 +188,18 @@
   <div class="status" id="statusBox"><span class="dots">מנסח שלוש גרסאות</span></div>
 
   <div id="results"></div>
+
+  <div class="panel log-panel" id="logPanel">
+    <div class="log-head">
+      <label>📒 יומן מה לא הבנתי (<span id="logCount">0</span>)</label>
+      <div class="log-actions">
+        <button class="copy" id="exportLogBtn" type="button">ייצוא</button>
+        <button class="copy" id="clearLogBtn" type="button">נקה יומן</button>
+      </div>
+    </div>
+    <div id="logList"></div>
+    <div class="log-empty" id="logEmpty">עדיין לא סימנת כלום. סמן/י מילה או ביטוי בטקסט האנגלי כדי להוסיף ליומן.</div>
+  </div>
 </div>
 
 <script>
@@ -172,6 +224,12 @@ const MODES = {
     label: 'כתוב כאן את הטקסט בעברית',
     ph: 'רציתי לבדוק איתך לגבי המשלוח של החלקים...',
     intent: false
+  },
+  understand: {
+    label: 'הדבק כאן טקסט באנגלית שאתה רוצה להבין',
+    ph: 'Please see attached the updated forecast for Q3...',
+    intent: false,
+    log: true
   }
 };
 let mode = 'email';
@@ -186,6 +244,7 @@ modeBtns.forEach(b => b.addEventListener('click', () => {
   $('inputLabel').textContent = m.label;
   $('mainInput').placeholder = m.ph;
   $('intentWrap').classList.toggle('show', m.intent);
+  $('logPanel').classList.toggle('show', !!m.log);
 }));
 $('mainInput').placeholder = MODES.email.ph;
 $('intentWrap').classList.add('show');
@@ -216,10 +275,19 @@ Respond ONLY with valid JSON, no markdown fences, no preamble, exactly this shap
 {"formal":{"en":"...","he":"..."},"simple":{"en":"...","he":"..."},"casual":{"en":"...","he":"..."}}`;
 }
 
+function buildUnderstandPrompt(text){
+  return `Below is an English text. Translate it into natural, fluent Hebrew, preserving the original paragraph breaks:
+"""${text}"""
+
+Respond ONLY with valid JSON, no markdown fences, no preamble, exactly this shape:
+{"translation":"..."}`;
+}
+
 async function generate(){
   const text = $('mainInput').value.trim();
   if(!text) return;
   const intent = $('intentInput').value.trim();
+  const isUnderstand = mode === 'understand';
 
   $('goBtn').disabled = true;
   $('errBox').classList.remove('show');
@@ -227,13 +295,14 @@ async function generate(){
   $('statusBox').classList.add('show');
 
   try{
+    const promptText = isUnderstand ? buildUnderstandPrompt(text) : buildPrompt(text,intent);
     const res = await fetch(PROXY_URL,{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
         model:'claude-sonnet-4-6',
-        max_tokens:1000,
-        messages:[{role:'user',content:buildPrompt(text,intent)}]
+        max_tokens:1500,
+        messages:[{role:'user',content:promptText}]
       })
     });
     const data = await res.json();
@@ -242,7 +311,8 @@ async function generate(){
     const clean = raw.replace(/```json|```/g,'').trim();
     const first = clean.indexOf('{'), last = clean.lastIndexOf('}');
     const parsed = JSON.parse(clean.slice(first,last+1));
-    render(parsed);
+    if(isUnderstand) renderUnderstand(text, parsed.translation || '');
+    else render(parsed);
   }catch(e){
     $('errBox').textContent = 'משהו השתבש: ' + e.message + ' — נסה שוב.';
     $('errBox').classList.add('show');
@@ -294,6 +364,196 @@ function render(d){
   });
   box.scrollIntoView({behavior:'smooth',block:'start'});
 }
+
+// ---------- Understand mode: render + mark-as-unclear ----------
+function renderUnderstand(sourceText, hebrew){
+  const box = $('results');
+  box.innerHTML = '';
+
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.style.setProperty('--vc','var(--accent)');
+
+  const head = document.createElement('div');
+  head.className = 'card-head';
+  const name = document.createElement('span');
+  name.className = 'name';
+  name.textContent = 'תרגום לעברית';
+  head.append(name);
+
+  const hint = document.createElement('div');
+  hint.className = 'understand-hint';
+  hint.textContent = 'סמן/י (עם העכבר, או לחיצה ארוכה בנייד) מילה או ביטוי באנגלית שלא הבנת — זה יתווסף ליומן למטה.';
+
+  const src = document.createElement('div');
+  src.className = 'en-src';
+  src.id = 'engSrc';
+  src.textContent = sourceText;
+
+  const he = document.createElement('div');
+  he.className = 'he-text';
+  he.textContent = hebrew;
+
+  card.append(head, hint, src, he);
+  box.appendChild(card);
+
+  attachMarkHandler(src, sourceText);
+  box.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function attachMarkHandler(container, fullText){
+  container.addEventListener('mouseup', () => setTimeout(() => handleSelection(container, fullText), 0));
+  container.addEventListener('touchend', () => setTimeout(() => handleSelection(container, fullText), 0));
+  container.addEventListener('click', (e) => {
+    const m = e.target.closest('mark.unclear');
+    if(!m) return;
+    const id = m.dataset.logId;
+    const parent = m.parentNode;
+    while(m.firstChild) parent.insertBefore(m.firstChild, m);
+    parent.removeChild(m);
+    parent.normalize();
+    if(id) removeLogEntry(id);
+  });
+}
+
+function handleSelection(container, fullText){
+  removeMarkTip();
+  const sel = window.getSelection();
+  if(!sel || sel.isCollapsed || sel.rangeCount === 0) return;
+  const range = sel.getRangeAt(0);
+  if(!container.contains(range.commonAncestorContainer)) return;
+  const phrase = sel.toString().trim();
+  if(!phrase) return;
+
+  const rect = range.getBoundingClientRect();
+  const tip = document.createElement('div');
+  tip.className = 'mark-tip';
+  tip.id = 'markTip';
+  tip.textContent = '✏️ סמן כלא ברור';
+  tip.style.top = Math.max(8, rect.top - 34) + 'px';
+  tip.style.left = Math.max(8, rect.left) + 'px';
+  document.body.appendChild(tip);
+
+  tip.addEventListener('mousedown', (e) => e.preventDefault());
+  tip.addEventListener('click', () => {
+    markRange(range, phrase, fullText);
+    removeMarkTip();
+    sel.removeAllRanges();
+  });
+
+  document.addEventListener('mousedown', removeMarkTipOnce, {capture:true});
+}
+
+function removeMarkTipOnce(e){
+  if(e.target && e.target.id === 'markTip') return;
+  removeMarkTip();
+}
+
+function removeMarkTip(){
+  const tip = document.getElementById('markTip');
+  if(tip) tip.remove();
+  document.removeEventListener('mousedown', removeMarkTipOnce, {capture:true});
+}
+
+function markRange(range, phrase, fullText){
+  const mark = document.createElement('mark');
+  mark.className = 'unclear';
+  const id = 'l' + Date.now() + Math.random().toString(36).slice(2,7);
+  mark.dataset.logId = id;
+  try{ range.surroundContents(mark); }
+  catch(_){ /* selection crossed an existing mark boundary — still log it, skip highlight */ }
+  const context = extractContext(fullText, phrase);
+  addLogEntry(id, phrase, context);
+}
+
+function extractContext(fullText, phrase){
+  const idx = fullText.indexOf(phrase);
+  if(idx === -1) return '';
+  const start = Math.max(0, idx - 40);
+  const end = Math.min(fullText.length, idx + phrase.length + 40);
+  let ctx = fullText.slice(start, end).replace(/\s+/g,' ').trim();
+  if(start > 0) ctx = '…' + ctx;
+  if(end < fullText.length) ctx = ctx + '…';
+  return ctx;
+}
+
+// ---------- Difficulty log (persisted in this browser via localStorage) ----------
+const LOG_KEY = 'englishWriterDifficultyLog';
+
+function loadLog(){
+  try{ return JSON.parse(localStorage.getItem(LOG_KEY) || '[]'); }
+  catch(_){ return []; }
+}
+function saveLog(log){
+  try{ localStorage.setItem(LOG_KEY, JSON.stringify(log)); }catch(_){}
+}
+function addLogEntry(id, phrase, context){
+  const log = loadLog();
+  log.unshift({id, phrase, context, date: new Date().toISOString()});
+  saveLog(log);
+  renderLogList();
+}
+function removeLogEntry(id){
+  const log = loadLog().filter(e => e.id !== id);
+  saveLog(log);
+  renderLogList();
+}
+function renderLogList(){
+  const log = loadLog();
+  $('logCount').textContent = log.length;
+  const list = $('logList');
+  list.innerHTML = '';
+  $('logEmpty').style.display = log.length ? 'none' : 'block';
+  log.forEach(entry => {
+    const item = document.createElement('div');
+    item.className = 'log-item';
+    const main = document.createElement('div');
+    main.className = 'li-main';
+    const ph = document.createElement('span');
+    ph.className = 'li-phrase';
+    ph.textContent = entry.phrase;
+    const ctx = document.createElement('span');
+    ctx.className = 'li-ctx';
+    ctx.textContent = entry.context;
+    main.append(ph, ctx);
+    const del = document.createElement('button');
+    del.className = 'li-del';
+    del.type = 'button';
+    del.textContent = '✕';
+    del.title = 'מחק מהיומן';
+    del.addEventListener('click', () => removeLogEntry(entry.id));
+    item.append(main, del);
+    list.appendChild(item);
+  });
+}
+
+function exportLog(){
+  const log = loadLog();
+  if(!log.length) return;
+  const lines = log.slice().reverse().map(e =>
+    `${e.phrase}\n  הקשר: ${e.context}\n  תאריך: ${new Date(e.date).toLocaleString('he-IL')}`
+  );
+  const blob = new Blob([lines.join('\n\n')], {type:'text/plain;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'יומן-מה-לא-הבנתי.txt';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+$('exportLogBtn').addEventListener('click', exportLog);
+$('clearLogBtn').addEventListener('click', () => {
+  if(!loadLog().length) return;
+  if(confirm('למחוק את כל היומן? הפעולה לא הפיכה.')){
+    saveLog([]);
+    renderLogList();
+  }
+});
+
+renderLogList();
 
 $('goBtn').addEventListener('click', generate);
 </script>
