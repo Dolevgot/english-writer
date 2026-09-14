@@ -16,6 +16,7 @@
     --formal:#1f4e79;
     --simple:#2e7d5b;
     --casual:#b4561e;
+    --closest:#6b4fa0;
     --accent:#1f4e79;
     --radius:14px;
   }
@@ -49,6 +50,13 @@
 
   .panel{background:var(--card);border:1.5px solid var(--line);border-radius:var(--radius);padding:16px}
   label{font-weight:700;font-size:.85rem;display:block;margin-bottom:6px}
+  .label-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+  .label-row label{margin-bottom:0}
+  .clear-btn{
+    background:none;border:none;color:var(--muted);font-family:inherit;
+    font-size:.75rem;font-weight:700;cursor:pointer;padding:2px 4px;flex:none;
+  }
+  .clear-btn:hover{color:#8a3324}
   textarea{
     width:100%;min-height:130px;resize:vertical;
     font-family:inherit;font-size:1rem;line-height:1.5;
@@ -173,7 +181,10 @@
   </div>
 
   <div class="panel">
-    <label id="inputLabel" for="mainInput">הדבק כאן את המייל שקיבלת</label>
+    <div class="label-row">
+      <label id="inputLabel" for="mainInput">הדבק כאן את המייל שקיבלת</label>
+      <button type="button" class="clear-btn" id="clearInputBtn" title="נקה את הטקסט שכתבת">🗑️ נקה</button>
+    </div>
     <textarea id="mainInput" dir="auto" placeholder=""></textarea>
 
     <div class="intent" id="intentWrap">
@@ -254,6 +265,13 @@ const VARIANTS = [
   {key:'simple',  name:'ניסוח פשוט וברור',  color:'var(--simple)'},
   {key:'casual',  name:'ניסוח חברי יומיומי', color:'var(--casual)'}
 ];
+const IMPROVE_VARIANTS = [
+  {key:'closest', name:'הכי קרוב למה שכתבת (תיקון בלבד)', color:'var(--closest)'},
+  {key:'formal',  name:'ניסוח רשמי',        color:'var(--formal)'},
+  {key:'simple',  name:'ניסוח פשוט וברור',  color:'var(--simple)'},
+  {key:'casual',  name:'ניסוח חברי יומיומי', color:'var(--casual)'}
+];
+function getVariants(){ return mode === 'improve' ? IMPROVE_VARIANTS : VARIANTS; }
 
 function buildPrompt(text, intent){
   const task = {
@@ -261,6 +279,21 @@ function buildPrompt(text, intent){
     improve: `Below is an English text I wrote. Improve its phrasing, grammar and clarity while keeping my meaning:\n"""${text}"""`,
     translate: `Below is a Hebrew text. Write it in natural English (not a literal translation):\n"""${text}"""`
   }[mode];
+
+  if(mode === 'improve'){
+    return `${task}
+
+Produce FOUR versions of the result:
+1. "closest" – a MINIMAL correction of my original text: fix only grammar, spelling and word-choice mistakes. Keep my own sentence structure, wording and phrasing as close as possible to what I wrote. Do NOT rewrite or rephrase stylistically — this should read like my own text, just corrected.
+2. "formal" – professional business English (a fuller rewrite).
+3. "simple" – plain, clear, short sentences.
+4. "casual" – friendly everyday tone.
+
+For each version also provide a Hebrew translation so I can verify the meaning.
+
+Respond ONLY with valid JSON, no markdown fences, no preamble, exactly this shape:
+{"closest":{"en":"...","he":"..."},"formal":{"en":"...","he":"..."},"simple":{"en":"...","he":"..."},"casual":{"en":"...","he":"..."}}`;
+  }
 
   return `${task}
 
@@ -325,7 +358,7 @@ async function generate(){
 function render(d){
   const box = $('results');
   box.innerHTML = '';
-  VARIANTS.forEach(v=>{
+  getVariants().forEach(v=>{
     if(!d[v.key]) return;
     const card = document.createElement('div');
     card.className = 'card';
@@ -554,6 +587,15 @@ $('clearLogBtn').addEventListener('click', () => {
 });
 
 renderLogList();
+
+$('clearInputBtn').addEventListener('click', () => {
+  $('mainInput').value = '';
+  $('intentInput').value = '';
+  $('errBox').classList.remove('show');
+  $('results').innerHTML = '';
+  $('statusBox').classList.remove('show');
+  $('mainInput').focus();
+});
 
 $('goBtn').addEventListener('click', generate);
 </script>
