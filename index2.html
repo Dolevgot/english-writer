@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>תיקון אנגלית</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;500&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#EDEEF0; --card:#FFFFFF; --ink:#17191C; --ink2:#5A5F66; --ink3:#8B9099;
+  --rule:#D8DBDF; --fix:#0F6E56; --fix-bg:#DFF0E9; --wrong:#A33A32; --mark:#FBE7A9;
+  --he:"Frank Ruhl Libre",Georgia,serif; --en:"IBM Plex Sans",Arial,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--he);
+  font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased}
+.wrap{max-width:780px;margin:0 auto;padding:32px 20px 80px}
+h1{font-size:23px;font-weight:500;margin:0 0 4px}
+.sub{color:var(--ink2);font-size:15px;margin:0 0 26px}
+nav{display:flex;gap:22px;border-bottom:1px solid var(--rule);margin-bottom:26px;flex-wrap:wrap}
+nav button{background:none;border:0;padding:0 0 10px;margin-bottom:-1px;font-family:var(--he);
+  font-size:16px;color:var(--ink2);cursor:pointer;border-bottom:2px solid transparent}
+nav button:hover{color:var(--ink)}
+nav button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--ink)}
+label{display:block;font-size:14px;color:var(--ink2);margin:0 0 6px}
+textarea{width:100%;background:var(--card);border:1px solid var(--rule);border-radius:3px;
+  padding:13px 14px;font-family:var(--en);font-size:16px;line-height:1.6;color:var(--ink);resize:vertical}
+textarea:focus,button:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+textarea.he{font-family:var(--he)}
+.field{margin-bottom:16px}
+.hint{font-size:13px;color:var(--ink3);margin-top:5px}
+.go{background:var(--ink);color:#fff;border:0;border-radius:3px;padding:11px 26px;
+  font-family:var(--he);font-size:16px;cursor:pointer}
+.go:disabled{background:var(--ink3);cursor:default}
+.row{display:flex;align-items:center;gap:14px}
+.status{font-size:14px;color:var(--ink2)}
+.err{background:#FBEDEC;border:1px solid #E7C3BF;color:#7A2A24;padding:12px 14px;
+  border-radius:3px;font-size:15px;margin-top:20px}
+.out{margin-top:30px}
+.block{background:var(--card);border:1px solid var(--rule);border-radius:3px;padding:18px 20px;margin-bottom:16px}
+.block h2{font-size:15px;font-weight:500;color:var(--ink2);margin:0 0 12px}
+.en{font-family:var(--en);font-size:17px;line-height:1.65;direction:ltr;text-align:left;white-space:pre-wrap}
+mark.fix{background:var(--fix-bg);color:var(--fix);padding:1px 2px;border-radius:2px}
+.notes{list-style:none;margin:16px 0 0;padding:14px 0 0;border-top:1px solid var(--rule)}
+.notes li{margin-bottom:13px}
+.notes li:last-child{margin-bottom:0}
+.pair{font-family:var(--en);direction:ltr;text-align:left;font-size:15px;margin-bottom:2px}
+.pair s{color:var(--wrong);text-decoration-thickness:1px}
+.pair b{color:var(--fix);font-weight:500}
+.tag{font-family:var(--he);font-size:12px;color:var(--ink2);border:1px solid var(--rule);
+  border-radius:2px;padding:1px 6px;margin-inline-start:8px;white-space:nowrap}
+.note{font-size:15px;color:var(--ink2)}
+.clean{color:var(--fix);font-size:15px}
+.alt{border-top:1px solid var(--rule);margin-top:16px;padding-top:14px}
+.alt h3{font-size:14px;font-weight:400;color:var(--ink2);margin:0 0 6px}
+.alt .en{font-size:16px}
+.link{background:none;border:0;padding:0;font-family:var(--he);font-size:15px;
+  color:var(--ink2);text-decoration:underline;cursor:pointer}
+.link:hover{color:var(--ink)}
+.copy{background:none;border:1px solid var(--rule);border-radius:2px;padding:4px 12px;
+  font-family:var(--he);font-size:13px;color:var(--ink2);cursor:pointer;margin-top:10px}
+.copy:hover{border-color:var(--ink3);color:var(--ink)}
+.words{font-family:var(--en);direction:ltr;text-align:left;font-size:17px;line-height:1.9}
+.words span{cursor:pointer;padding:1px 0;border-radius:2px}
+.words span:hover{background:#EFF1F3}
+.words span.on{background:var(--mark)}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.chip{background:var(--mark);border:0;border-radius:2px;padding:3px 9px;font-family:var(--en);
+  font-size:14px;cursor:pointer;color:#5C4708}
+.chip:hover{text-decoration:line-through}
+.term{border-top:1px solid var(--rule);padding-top:13px;margin-top:13px}
+.term:first-child{border-top:0;padding-top:0;margin-top:0}
+.term .t{font-family:var(--en);direction:ltr;text-align:left;font-size:16px;font-weight:500}
+.hide{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>תיקון אנגלית</h1>
+<p class="sub">מתקן את מה שכתבתי, לא כותב במקומי.</p>
+
+<nav role="tablist">
+  <button role="tab" data-mode="correct" aria-selected="true">תיקון</button>
+  <button role="tab" data-mode="email" aria-selected="false">תשובה למייל</button>
+  <button role="tab" data-mode="he2en" aria-selected="false">עברית ← אנגלית</button>
+  <button role="tab" data-mode="read" aria-selected="false">אנגלית ← עברית</button>
+</nav>
+
+<div id="panel-correct">
+  <div class="field">
+    <label for="in-correct">הטקסט שכתבתי באנגלית</label>
+    <textarea id="in-correct" rows="7"></textarea>
+  </div>
+</div>
+
+<div id="panel-email" class="hide">
+  <div class="field">
+    <label for="in-mail">המייל שקיבלתי</label>
+    <textarea id="in-mail" rows="6"></textarea>
+  </div>
+  <div class="field">
+    <label for="in-draft">מה אני רוצה להגיד בתשובה</label>
+    <textarea id="in-draft" rows="4"></textarea>
+    <p class="hint">אם תכתוב כאן באנגלית, הטיוטה שלך גם תתוקן.</p>
+  </div>
+</div>
+
+<div id="panel-he2en" class="hide">
+  <div class="field">
+    <label for="in-he">הטקסט בעברית</label>
+    <textarea id="in-he" class="he" rows="6"></textarea>
+  </div>
+</div>
+
+<div id="panel-read" class="hide">
+  <div class="field">
+    <label for="in-en">הטקסט באנגלית</label>
+    <textarea id="in-en" rows="7"></textarea>
+  </div>
+</div>
+
+<div class="row">
+  <button class="go" id="go">שלח</button>
+  <span class="status" id="status"></span>
+</div>
+
+<div id="error"></div>
+<div class="out" id="out"></div>
+
+</div>
+
+<script>
+// הבקשות עוברות לפונקציה באותו אתר (functions/api.js ב-Cloudflare Pages)
+const PROXY_URL = "/api";
+const MODEL = "claude-sonnet-4-6";
+
+const CATEGORIES = {
+  prepositions:"מילות יחס", articles:"יידוע", tense:"זמנים", "word-order":"סדר מילים",
+  collocation:"צירופים", vocabulary:"אוצר מילים", countable:"ספיר / לא ספיר",
+  register:"משלב", punctuation:"פיסוק", spelling:"כתיב"
+};
+const TERM_TYPES = { idiom:"ביטוי", slang:"סלנג", jargon:"מונח מקצועי", vocab:"אוצר מילים" };
+const CAT_LIST = Object.keys(CATEGORIES).join(", ");
+
+const CORRECT_RULES = `
+"corrected": the user's text with ONLY actual errors fixed. Keep their voice, their word
+choices and their sentence length. Do not improve style. If a sentence is correct but
+clumsy, leave it exactly as it is.
+"errors": one object per fix: {"original","fixed","category","note"}.
+  "original" and "fixed" are SHORT fragments copied verbatim (a word or a few words),
+  never whole sentences. "fixed" must appear verbatim inside "corrected".
+  "category" MUST be exactly one of: ${CAT_LIST}.
+  "note" is one short sentence in Hebrew explaining the rule.
+  Empty array if the text has no errors.`;
+
+const PROMPTS = {
+  correct: `You are correcting English written by a native Hebrew speaker.
+Return ONLY valid JSON, no markdown fences and no text around it, shaped:
+{"corrected":"","errors":[],"alternatives":[]}
+${CORRECT_RULES}
+"alternatives": exactly two rewrites, labeled רשמי and פשוט: [{"label","text"}].
+These may change the style freely.`,
+
+  email: `You write email replies in English for a native Hebrew speaker, and correct his English.
+Return ONLY valid JSON, no markdown fences and no text around it, shaped:
+{"draft_correction":null,"reply":[]}
+"reply": exactly two full email replies, labeled רשמי and פשוט: [{"label","text"}].
+Base them on what the user says he wants to convey. No subject line, no placeholders
+like [Name] unless the name appears in the source email.
+"draft_correction": {"corrected":"","errors":[]} for the user's own draft, following these rules:
+${CORRECT_RULES}
+Set "draft_correction" to null when instructed below.`,
+
+  he2en: `You write natural English for a native Hebrew speaker.
+Return ONLY valid JSON, no markdown fences and no text around it, shaped:
+{"versions":[]}
+"versions": exactly three renderings of the Hebrew input, labeled רשמי, פשוט and חברי:
+[{"label","text"}]. Natural idiomatic English, never a literal translation.`,
+
+  read: `You translate English into natural Hebrew.
+Return ONLY valid JSON, no markdown fences and no text around it, shaped:
+{"translation":""}
+Natural, fluent Hebrew that keeps the register of the original.`,
+
+  terms: `You explain English terms to a native Hebrew speaker, in context.
+Return ONLY valid JSON, no markdown fences and no text around it, shaped:
+{"terms":[]}
+One object per requested term: {"term","context","meaning","type"}.
+"context" is the sentence from the text where it appears, copied verbatim.
+"meaning" is in Hebrew: what it means HERE, in this context, in one or two sentences.
+"type" MUST be exactly one of: idiom, slang, jargon, vocab.
+Keep the requested terms in the order given, one object each.`
+};
+
+let mode = "correct";
+let readText = "";
+let marked = [];
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+document.querySelectorAll("nav button").forEach(b => {
+  b.onclick = () => {
+    mode = b.dataset.mode;
+    document.querySelectorAll("nav button").forEach(x =>
+      x.setAttribute("aria-selected", String(x === b)));
+    ["correct","email","he2en","read"].forEach(m =>
+      $("panel-" + m).classList.toggle("hide", m !== mode));
+    $("out").innerHTML = ""; $("error").innerHTML = "";
+    marked = []; readText = "";
+  };
+});
+
+document.addEventListener("keydown", e => {
+  if ((e.metaKey || e.ctrlKey) && e.key === "Enter") { e.preventDefault(); $("go").click(); }
+});
+
+async function ask(system, userText) {
+  const res = await fetch(PROXY_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: MODEL, max_tokens: 2000, system,
+      messages: [{ role: "user", content: userText }]
+    })
+  });
+  const data = await res.json();
+  if (data.error) throw new Error(data.error.message || "שגיאה מה־API");
+  const raw = (data.content || []).filter(b => b.type === "text").map(b => b.text).join("").trim();
+  const clean = raw.replace(/^```(?:json)?/i, "").replace(/```$/, "").trim();
+  try { return JSON.parse(clean); }
+  catch { throw new Error("התשובה לא חזרה כ־JSON תקין. נסה שוב."); }
+}
+
+function isEnglish(t) {
+  const s = t.trim();
+  return s.length > 15 && !/[\u0590-\u05FF]/.test(s);
+}
+
+function highlight(text, errors) {
+  let work = String(text);
+  const kept = [];
+  (errors || []).forEach(e => {
+    if (!e.fixed) return;
+    const at = work.indexOf(e.fixed);
+    if (at === -1) return;
+    const i = kept.push(e.fixed) - 1;
+    work = work.slice(0, at) + "\u0001" + i + "\u0002" + work.slice(at + e.fixed.length);
+  });
+  return esc(work).replace(/\u0001(\d+)\u0002/g,
+    (_, i) => '<mark class="fix">' + esc(kept[Number(i)]) + "</mark>");
+}
+
+function copyBtn(text) {
+  return '<button class="copy" data-copy="' + esc(text) + '">העתק</button>';
+}
+
+function correctionBlock(c, title) {
+  const errors = c.errors || [];
+  let h = '<div class="block"><h2>' + title + "</h2>";
+  h += '<div class="en">' + highlight(c.corrected || "", errors) + "</div>";
+  h += copyBtn(c.corrected || "");
+  if (!errors.length) {
+    h += '<p class="clean" style="margin:14px 0 0">לא נמצאו טעויות בטקסט הזה.</p>';
+  } else {
+    h += '<ul class="notes">';
+    errors.forEach(e => {
+      const cat = CATEGORIES[e.category] || e.category || "";
+      h += "<li><div class='pair'><s>" + esc(e.original || "") + "</s> &nbsp;→&nbsp; <b>" +
+           esc(e.fixed || "") + "</b><span class='tag'>" + esc(cat) + "</span></div>" +
+           "<div class='note'>" + esc(e.note || "") + "</div></li>";
+    });
+    h += "</ul>";
+  }
+  return h + "</div>";
+}
+
+function versionsBlock(list, title) {
+  let h = '<div class="block"><h2>' + title + "</h2>";
+  (list || []).forEach((v, i) => {
+    h += '<div class="alt"' + (i === 0 ? ' style="border-top:0;margin-top:0;padding-top:0"' : "") + ">" +
+         "<h3>" + esc(v.label || "") + '</h3><div class="en">' + esc(v.text || "") + "</div>" +
+         copyBtn(v.text || "") + "</div>";
+  });
+  return h + "</div>";
+}
+
+function foldable(id, label, inner) {
+  return '<button class="link" data-fold="' + id + '">' + label + "</button>" +
+         '<div id="' + id + '" class="hide" style="margin-top:14px">' + inner + "</div>";
+}
+
+function wordsMarkup(text) {
+  return text.split(/(\s+)/).map((tok, i) =>
+    /^\s+$/.test(tok) || !tok ? esc(tok) :
+    '<span data-w="' + i + '">' + esc(tok) + "</span>").join("");
+}
+
+function renderChips() {
+  const box = $("chips");
+  if (!box) return;
+  box.innerHTML = marked.map((m, i) =>
+    '<button class="chip" data-chip="' + i + '">' + esc(m.text) + " ×</button>").join("");
+  $("explain").disabled = marked.length === 0;
+}
+
+function addMark(text, wordEl) {
+  const clean = text.trim().replace(/^[^\w']+|[^\w']+$/g, "");
+  if (!clean) return;
+  if (marked.some(m => m.text.toLowerCase() === clean.toLowerCase())) return;
+  marked.push({ text: clean, el: wordEl || null });
+  if (wordEl) wordEl.classList.add("on");
+  renderChips();
+}
+
+$("out").addEventListener("click", e => {
+  const c = e.target.closest("[data-copy]");
+  if (c) {
+    navigator.clipboard.writeText(c.dataset.copy);
+    c.textContent = "הועתק"; setTimeout(() => { c.textContent = "העתק"; }, 1400);
+    return;
+  }
+  const f = e.target.closest("[data-fold]");
+  if (f) {
+    const box = $(f.dataset.fold);
+    const open = box.classList.toggle("hide");
+    f.textContent = open ? f.dataset.shut || f.textContent : f.dataset.open || f.textContent;
+    return;
+  }
+  const w = e.target.closest(".words span");
+  if (w) {
+    if (w.classList.contains("on")) {
+      const i = marked.findIndex(m => m.el === w);
+      if (i > -1) marked.splice(i, 1);
+      w.classList.remove("on"); renderChips();
+    } else addMark(w.textContent, w);
+    return;
+  }
+  const chip = e.target.closest("[data-chip]");
+  if (chip) {
+    const m = marked.splice(Number(chip.dataset.chip), 1)[0];
+    if (m && m.el) m.el.classList.remove("on");
+    renderChips();
+  }
+});
+
+$("go").onclick = async () => {
+  const btn = $("go"); const st = $("status");
+  $("error").innerHTML = ""; $("out").innerHTML = "";
+  marked = [];
+  let system, user;
+
+  if (mode === "correct") {
+    user = $("in-correct").value.trim();
+    if (!user) return;
+    system = PROMPTS.correct;
+  } else if (mode === "email") {
+    const mail = $("in-mail").value.trim();
+    const draft = $("in-draft").value.trim();
+    if (!mail) return;
+    const en = isEnglish(draft);
+    system = PROMPTS.email + (en
+      ? "\nThe user's draft below is in English: correct it in draft_correction."
+      : "\nThe user's draft is in Hebrew or empty: set draft_correction to null.");
+    user = "The email I received:\n" + mail +
+           "\n\nWhat I want to say in reply:\n" + (draft || "(nothing specified)");
+  } else if (mode === "he2en") {
+    user = $("in-he").value.trim();
+    if (!user) return;
+    system = PROMPTS.he2en;
+  } else {
+    user = $("in-en").value.trim();
+    if (!user) return;
+    readText = user;
+    system = PROMPTS.read;
+  }
+
+  btn.disabled = true; st.textContent = "עובד…";
+  try {
+    const r = await ask(system, user);
+    if (mode === "correct") {
+      let h = correctionBlock(r, "התיקון");
+      h += '<div class="block">' + foldable("alts", "הצג ניסוחים חלופיים",
+        (r.alternatives || []).map(a =>
+          '<div class="alt" style="border-top:0;margin-top:0;padding-top:0;margin-bottom:14px">' +
+          "<h3>" + esc(a.label || "") + '</h3><div class="en">' + esc(a.text || "") + "</div>" +
+          copyBtn(a.text || "") + "</div>").join("")) + "</div>";
+      $("out").innerHTML = h;
+    } else if (mode === "email") {
+      let h = versionsBlock(r.reply, "התשובה");
+      if (r.draft_correction) {
+        h += '<div class="block">' + foldable("dc", "הצג את התיקון לטיוטה שלי",
+          correctionBlock(r.draft_correction, "הטיוטה שלי, מתוקנת")) + "</div>";
+      }
+      $("out").innerHTML = h;
+    } else if (mode === "he2en") {
+      $("out").innerHTML = versionsBlock(r.versions, "הניסוח באנגלית");
+    } else {
+      $("out").innerHTML =
+        '<div class="block"><h2>התרגום</h2><div>' + esc(r.translation || "") + "</div></div>" +
+        '<div class="block"><h2>סמן מה שלא היה ברור</h2>' +
+        '<div class="words">' + wordsMarkup(readText) + "</div>" +
+        '<div style="margin-top:12px" class="row">' +
+        '<button class="link" id="mark-sel">סמן את מה שבחרתי</button>' +
+        '<button class="copy" id="explain" style="margin:0" disabled>הסבר את המסומן</button>' +
+        '</div><div class="chips" id="chips"></div></div>' +
+        '<div id="terms"></div>';
+      $("mark-sel").onclick = () => {
+        const s = window.getSelection().toString();
+        if (s.trim()) { addMark(s, null); window.getSelection().removeAllRanges(); }
+      };
+      $("explain").onclick = explain;
+      renderChips();
+    }
+  } catch (err) {
+    $("error").innerHTML = '<div class="err">' + esc(err.message) + "</div>";
+  } finally {
+    btn.disabled = false; st.textContent = "";
+  }
+};
+
+async function explain() {
+  const b = $("explain");
+  b.disabled = true; b.textContent = "עובד…";
+  $("terms").innerHTML = "";
+  try {
+    const r = await ask(PROMPTS.terms,
+      "Full text:\n" + readText + "\n\nExplain these terms:\n" +
+      marked.map(m => "- " + m.text).join("\n"));
+    let h = '<div class="block"><h2>מה שסימנתי</h2>';
+    (r.terms || []).forEach(t => {
+      h += '<div class="term"><div class="t">' + esc(t.term || "") +
+           '<span class="tag">' + esc(TERM_TYPES[t.type] || t.type || "") + "</span></div>" +
+           '<div class="note">' + esc(t.meaning || "") + "</div>" +
+           '<div class="pair" style="color:var(--ink3);margin-top:4px">' + esc(t.context || "") + "</div></div>";
+    });
+    $("terms").innerHTML = h + "</div>";
+  } catch (err) {
+    $("error").innerHTML = '<div class="err">' + esc(err.message) + "</div>";
+  } finally {
+    b.disabled = false; b.textContent = "הסבר את המסומן";
+  }
+}
+</script>
+</body>
+</html>
