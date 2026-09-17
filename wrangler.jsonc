@@ -1,0 +1,9 @@
+{
+  "name": "english-writer-app",
+  "main": "worker.js",
+  "compatibility_date": "2025-09-01",
+  "assets": {
+    "directory": ".",
+    "binding": "ASSETS"
+  }
+}
